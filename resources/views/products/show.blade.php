@@ -1,16 +1,24 @@
-<h1>Product Details</h1>
+@extends('layouts.app')
 
-@if($product)
-    <p>Libelle: {{ $product['libelle'] }}</p>
-    <p>Marque: {{ $product['marque'] }}</p>
-    <p>Prix: {{ $product['prix'] }}</p>
-    <p>Stock: {{ $product['stock'] }}</p>
+@section('content')
+    <h1>Détails du Produit</h1>
 
-    @if(isset($product['image']))
-        <p>Image: {{ $product['image'] }}</p>
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
     @endif
-@else
-    <p>Product not found</p>
-@endif
 
-<a href="{{ route('products.index') }}">Back to Products</a>
+    <p><strong>Libelle:</strong> {{ $product->libelle }}</p>
+    <p><strong>Marque:</strong> {{ $product->marque }}</p>
+    <p><strong>Prix:</strong> {{ $product->prix }}</p>
+    <p><strong>Stock:</strong> {{ $product->stock }}</p>
+    <p><strong>Image:</strong> {{ $product->image }}</p>
+
+    <a href="{{ route('products.edit', $product->id) }}">
+        <button>Modifier</button>
+    </a>
+    <form action="{{ route('products.destroy', $product->id) }}" method="POST" style="display: inline-block;">
+        @csrf
+        @method('DELETE')
+        <button type="submit">Supprimer</button>
+    </form>
+@endsection

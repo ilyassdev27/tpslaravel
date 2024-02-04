@@ -1,26 +1,31 @@
-<h1>Edit Product</h1>
+@extends('layouts.app')
 
-@if ($product)
-    <form method="POST" action="{{ route('products.update', $product['id']) }}">
+@section('content')
+    <h1>Modifier le Produit</h1>
+
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    <form action="{{ route('products.update', $product->id) }}" method="POST">
         @csrf
         @method('PUT')
+
         <label for="libelle">Libelle:</label>
-        <input type="text" name="libelle" value="{{ old('libelle', $product['libelle'] ?? '') }}" required>
-        <br>
+        <input type="text" name="libelle" value="{{ $product->libelle }}" required>
+
         <label for="marque">Marque:</label>
-        <input type="text" name="marque" value="{{ old('marque', $product['marque'] ?? '') }}" required>
-        <br>
+        <input type="text" name="marque" value="{{ $product->marque }}" required>
+
         <label for="prix">Prix:</label>
-        <input type="number" name="prix" value="{{ old('prix', $product['prix'] ?? '') }}" step="0.01" required>
-        <br>
+        <input type="text" name="prix" value="{{ $product->prix }}" required>
+
         <label for="stock">Stock:</label>
-        <input type="number" name="stock" value="{{ old('stock', $product['stock'] ?? '') }}" required>
-        <br>
-        <label for="image">Image (optional):</label>
-        <input type="file" name="image" value="{{ old('image', $product['image'] ?? '') }}">
-        <br>
-        <button type="submit">Update</button>
+        <input type="number" name="stock" value="{{ $product->stock }}" required>
+
+        <label for="image">Image:</label>
+        <input type="file" name="image" value="{{ $product->image }}">
+
+        <button type="submit">Mettre à Jour</button>
     </form>
-@else
-    <p>Product not found</p>
-@endif
+@endsection

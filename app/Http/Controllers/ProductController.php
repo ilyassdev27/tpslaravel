@@ -2,24 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    private $products = [];
-
     public function index()
     {
-        return view('products.index', ['products' => $this->products]);
-    }
+        $products = DB::table('products')->get();
 
-    public function show($id)
-    {
-        $product = $this->findProductById($id);
-    
-        return view('products.show', compact('product'));
+        return view('products.index', compact('products'));
     }
-    
 
     public function create()
     {
@@ -28,75 +21,55 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'libelle' => 'required|string',
-            'marque' => 'required',
-            'prix' => 'required|numeric',
-            'stock' => 'required|integer|min:1|max:9999',
-            'image' => 'nullable|file',
+
+        $productId = DB::table('products')->insertGetId([
+            'libelle' => $request->libelle,
+            'marque' => $request->marque,
+            'prix' => $request->prix,
+            'stock' => $request->stock,
+            'image' => $request->image,
         ]);
-    
-        $this->products[] = $validatedData;
-    
-        $lastProductId = count($this->products);
-    
-        return redirect()->route('products.show', ['id' => $lastProductId]);
+
+        return redirect()->route('products.show', $productId)
+            ->with('success', 'Produit créé avec succès');
     }
-    
+
+    public function show($id)
+    {
+        $product = DB::table('products')->find($id);
+
+        return view('products.show', compact('product'));
+    }
 
     public function edit($id)
     {
-        $product = $this->findProductById($id);
+        $product = DB::table('products')->find($id);
+
         return view('products.edit', compact('product'));
     }
 
     public function update(Request $request, $id)
     {
-        $product = $this->findProductById($id);
 
-        $validatedData = $request->validate([
-            'libelle' => 'required|string',
-            'marque' => 'required',
-            'prix' => 'required|numeric',
-            'stock' => 'required|integer|min:1|max:9999',
-            'image' => 'nullable|file',
-        ]);
+        DB::table('products')
+            ->where('id', $id)
+            ->update([
+                'libelle' => $request->libelle,
+                'marque' => $request->marque,
+                'prix' => $request->prix,
+                'stock' => $request->stock,
+                'image' => $request->image,
+            ]);
 
-        $product = array_merge($product, $validatedData);
-
-        return redirect()->route('products.index');
+        return redirect()->route('products.show', $id)
+            ->with('success', 'Produit mis à jour avec succès');
     }
 
     public function destroy($id)
     {
-        $index = $this->findProductIndexById($id);
+        DB::table('products')->where('id', $id)->delete();
 
-        if ($index !== false) {
-            array_splice($this->products, $index, 1);
-        }
-
-        return redirect()->route('products.index');
-    }
-
-    private function findProductById($id)
-    {
-        foreach ($this->products as $product) {
-            if ($product['id'] == $id) {
-                return $product;
-            }
-        }
-
-        return null;
-    }
-
-    private function findProductIndexById($id)
-    {
-        foreach ($this->products as $index => $product) {
-            if ($product['id'] == $id) {
-                return $index;
-            }
-        }
-
-        return false;
+        return redirect()->route('products.index')
+            ->with('success', 'Produit supprimé avec succès');
     }
 }
